@@ -1,0 +1,23 @@
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2008
+
+Project("{01CF6FD5-035E-2667-A326-C3840078F409}") = "TapMonsters", "Assembly-CSharp.csproj", "{AC22B806-E1A4-0869-E872-E4278E3E9565}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AC22B806-E1A4-0869-E872-E4278E3E9565}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AC22B806-E1A4-0869-E872-E4278E3E9565}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AC22B806-E1A4-0869-E872-E4278E3E9565}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AC22B806-E1A4-0869-E872-E4278E3E9565}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = Assembly-CSharp.csproj
+	EndGlobalSection
+EndGlobal
