@@ -1,17 +1,24 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System;
+using System.Collections;
 
 public class Enemy : MonoBehaviour {
 
     public string nameMonster;
+    public float gastoBase;
     decimal health;
     decimal maxHealth;
     decimal gold;
 
+    public bool death = false;
+
+    Animator anim;
+
     void Start()
     {
         Physics2D.IgnoreLayerCollision(LayerMask.NameToLayer("Enemy"), LayerMask.NameToLayer("Enemy"));
+        anim = this.gameObject.GetComponent<Animator>();
     }
 
     public void setVida(decimal hp)
@@ -27,29 +34,47 @@ public class Enemy : MonoBehaviour {
 
     public void hitMe(decimal damage)
     {
-        
-        health = Decimal.Subtract(health, damage);
-        if (health <= Decimal.Zero) { health = 0; updateHud(); Death(); return; }
-        updateHud();
+        if (!death)
+        {
+            health = Decimal.Subtract(health, damage);
+            if (health <= Decimal.Zero)
+            {
+                death = true;
+                health = 0;
+                updateHud();
+                Death();
+                return;
+            }
+            anim.SetTrigger("hit");
+            updateHud();
+        }
     }
 
     private void Death()
     {
+        anim.SetTrigger("death");
         UnityEngine.Object goldpref = Resources.Load("Prefabs/Coin", typeof(GameObject));
 
         int rand = UnityEngine.Random.Range(2, 8);
-        GameObject[] coins = new GameObject[rand];
-
+        GameObject coin;
         Vector3 coinPosition = new Vector3(transform.position.x, transform.position.y, -1f);
 
 
         for(int i = 0; i<rand; i++)
         {
-            coins[i] = (GameObject)Instantiate(goldpref, coinPosition, new Quaternion());
-            coins[i].GetComponent<Gold>().gold = Math.Ceiling(gold / rand);
+            coin = (GameObject)Instantiate(goldpref, coinPosition, new Quaternion());
+            coin.GetComponent<Gold>().gold = Math.Ceiling(gold / rand);
         }
+        StartCoroutine(waitFinishAnimation());
+    }
 
+    IEnumerator waitFinishAnimation()
+    {
 
+        while (!anim.GetCurrentAnimatorStateInfo(0).IsName("AfterDeath"))
+        {
+            yield return null;
+        }
         GameObject.FindGameObjectWithTag("GameEngine").GetComponent<GameEngine>().enemySpawn();
         Destroy(gameObject);
     }

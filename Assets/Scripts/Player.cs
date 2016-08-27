@@ -4,13 +4,17 @@ using System.Collections;
 
 public class Player : MonoBehaviour {
 
-    private decimal gold=0;
+
+    float gastoBase = 10;
+
+
+    private decimal gold = 0;
 
 
     private int level = 1;
     private float criticalRate = 70f;
     private float criticalDamage = 1.5f;
-    private decimal damage = 300m;
+    private decimal damage = 1m;
 
 
 
@@ -79,10 +83,20 @@ public class Player : MonoBehaviour {
     }
 
 
-    public void levelUp(int level, decimal damage)
+    public void levelUp(int levelPlus)
     {
-        this.level += level;
-        this.damage += damage;
+        decimal cost = (decimal)gastoBase;
+        cost *= (decimal)Mathf.Pow(1.075f, (level - 1));
+        cost *= (decimal)Mathf.Pow(1.075f, (level));
+        cost -= 1m;
+        cost *= (decimal)Mathf.Pow(0.904f, (level - 1));
+        cost = System.Math.Ceiling(cost);
+        cost *= levelPlus;
+        if (loseGold(cost))
+        {
+            this.level += levelPlus;
+            damageCalculator();
+        }
     }
 
     public void earnGold(decimal valor)
@@ -94,8 +108,8 @@ public class Player : MonoBehaviour {
     public bool loseGold(decimal valor)
     {
         if(gold < valor){ return false; }
-
         gold -= valor;
+        updateHud();
         return true;
     }
 
@@ -104,7 +118,7 @@ public class Player : MonoBehaviour {
     private void attack()
     {
         GameObject enemy = GameObject.FindGameObjectWithTag("Enemy");
-        if (enemy != null)
+        if (enemy != null && !enemy.GetComponent<Enemy>().death)
         {
 
             float rand = Random.Range(1, 100);
@@ -128,6 +142,14 @@ public class Player : MonoBehaviour {
             enemy.GetComponent<Enemy>().hitMe(danoCalc);
         }
     }
+
+
+
+    void damageCalculator()
+    {
+        damage = (decimal)(level * Mathf.Pow(1.05f, level));
+    }
+
 
     private void updateHud()
     {
