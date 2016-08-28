@@ -1,41 +1,61 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using System.IO;
+using System.Text;
 
 public class GameEngine : MonoBehaviour {
 
 
-    public GameObject[] Enemies;
-    private int fase = 1;
-    private int level = 0;
+    private string passwordSave = "#suamaequeroverquemvaidecryptografarisso#";
 
+    public GameObject[] Enemies;
+    private int fase=1;
+    private int level=1;
+    bool start;
+    bool loaded = false;
     GameObject[] FaseTxt = new GameObject[2];
-    
+
+
+
+    void OnApplicationQuit()
+    {
+        if(loaded)
+        save();
+    }
+
+
+    void OnApplicationPause()
+    {
+        if (loaded)
+            save();
+    }
+
 
 
     void Start () {
-
+        start = true;
         FaseTxt[0] = GameObject.FindGameObjectWithTag("HUD#Fase");
         FaseTxt[1] = GameObject.FindGameObjectWithTag("HUD#LevelFase");
+        if (!load())
+        {
+            fase = 1;
+            level = 1;
+        }
+        loaded = true;
         enemySpawn();
-
-        
     }
 	
-	void Update () {
-	    
-	}
 
 
     public void enemySpawn()
     {
         if (GameObject.FindGameObjectWithTag("Enemy") == null)
         {
-            level++;
+            if (!start) { level++; }
             if (level > 10) { level = 1; fase++; }
 
-            FaseTxt[0].GetComponent<Text>().text = "Fase " + fase;
-            FaseTxt[1].GetComponent<Text>().text = level + "/10";
+            updateHUD();
 
             int rand = Random.Range(0, Enemies.Length - 1);
             GameObject enemy = Enemies[rand];
@@ -55,6 +75,7 @@ public class GameEngine : MonoBehaviour {
         {
             StartCoroutine(CDEnemy());
         }
+        start = false;
     }
 
 
@@ -62,6 +83,88 @@ public class GameEngine : MonoBehaviour {
     {
         yield return new WaitForSeconds(.15f);
         enemySpawn();
+    }
+
+    void updateHUD()
+    {
+        FaseTxt[0].GetComponent<Text>().text = "Fase " + fase;
+        FaseTxt[1].GetComponent<Text>().text = level + "/10";
+    }
+
+
+    public void save()
+    {
+        Player p = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
+        string data = "{"+fase+","+level+","+p.getGold()+","+p.getLevel()+"}{"+ NumberFormat.getInstance().encrypt(passwordSave) +"}";
+        data += "{"+(data.GetHashCode()*data.Length)+"}";
+        data = NumberFormat.getInstance().encrypt(data);
+
+        if (!Directory.Exists(Application.persistentDataPath + "/data")) { Directory.CreateDirectory(Application.persistentDataPath + "/data"); }
+        
+        FileStream fs = File.Open(Application.persistentDataPath + "/data/01110011011000010111011001100101.ide", FileMode.OpenOrCreate);
+        byte[] dataPersist = new UTF8Encoding(true).GetBytes(data);
+        fs.Write(dataPersist, 0, dataPersist.Length);
+        fs.Flush();
+        fs.Close();
+    }
+
+    public bool load()
+    {
+        try
+        {
+            Player p = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
+            if (File.Exists(Application.persistentDataPath + "/data/01110011011000010111011001100101.ide"))
+            {
+                FileStream fs = File.Open(Application.persistentDataPath + "/data/01110011011000010111011001100101.ide", FileMode.Open);
+                StreamReader sr = new StreamReader(fs);
+                string data = sr.ReadLine();
+                sr.Close();
+                fs.Close();
+
+                data = NumberFormat.getInstance().decrypt(data);
+                string[] firstPart = data.Split('{');
+                string[] secondPart = firstPart[2].Split('}');
+                string[] thirdPart = firstPart[3].Split('}');
+                firstPart = firstPart[1].Split('}');
+
+
+                string pass = NumberFormat.getInstance().encrypt(passwordSave);
+
+
+                if (pass.Equals(secondPart[0]))
+                {
+                    string tmp = "{" + firstPart[0] + "}{" + pass + "}";
+                    tmp = "" + (tmp.GetHashCode() * tmp.Length);
+                    if (tmp.Equals(thirdPart[0]))
+                    {
+                        firstPart = firstPart[0].Split(',');
+                        fase = System.Int32.Parse(firstPart[0]);
+                        level = System.Int32.Parse(firstPart[1]);
+                        p.earnGold(decimal.Parse(firstPart[2]));
+                        p.setLevel(System.Int32.Parse(firstPart[3]));
+                        Debug.Log(fase + "" + level);
+                        updateHUD();
+                        return true;
+
+                    }
+                    else
+                    {
+                        //new game hack noob
+                        return false;
+                    }
+                }
+                else
+                {
+                    //new game hack noob
+                    return false;
+                }
+
+
+            }
+
+            return false;
+        }
+        catch (System.IndexOutOfRangeException e) { return false;  }
     }
 
 

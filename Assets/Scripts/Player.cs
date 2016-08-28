@@ -12,7 +12,7 @@ public class Player : MonoBehaviour {
 
 
     private int level = 1;
-    private float criticalRate = 70f;
+    private float criticalRate = 1f;
     private float criticalDamage = 1.5f;
     private decimal damage = 1m;
 
@@ -113,6 +113,14 @@ public class Player : MonoBehaviour {
         return true;
     }
 
+    public void setLevel(int level)
+    {
+        this.level = level;
+        damageCalculator();
+    }
+
+    public decimal getGold() { return this.gold;  }
+    public int getLevel() { return this.level; }
 
 
     private void attack()
