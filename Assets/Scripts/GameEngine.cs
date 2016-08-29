@@ -142,7 +142,6 @@ public class GameEngine : MonoBehaviour {
                         level = System.Int32.Parse(firstPart[1]);
                         p.earnGold(decimal.Parse(firstPart[2]));
                         p.setLevel(System.Int32.Parse(firstPart[3]));
-                        Debug.Log(fase + "" + level);
                         updateHUD();
                         return true;
 

@@ -88,7 +88,6 @@ public class NumberFormat {
             int d;
             Int32.TryParse(c[i] + "" + c[i + 1] + "" + c[i + 2], out d);
             newString += (char)(d / 7);
-            Debug.Log(newString);
         }
 
         return newString;
