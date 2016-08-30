@@ -5,6 +5,14 @@ using System.Collections;
 public class Player : MonoBehaviour {
 
 
+    public GameObject PLevel;
+    public GameObject PDamage;
+    public GameObject PCritC;
+    public GameObject PCritD;
+    public GameObject PLCost;
+
+
+
     float gastoBase = 10;
 
 
@@ -85,19 +93,26 @@ public class Player : MonoBehaviour {
 
     public void levelUp(int levelPlus)
     {
-        decimal cost = (decimal)gastoBase;
-        cost *= (decimal)Mathf.Pow(1.075f, (level - 1));
-        cost *= (decimal)Mathf.Pow(1.075f, (level));
-        cost -= 1m;
-        cost *= (decimal)Mathf.Pow(0.904f, (level - 1));
-        cost = System.Math.Ceiling(cost);
-        cost *= levelPlus;
-        if (loseGold(cost))
+        if (loseGold(cost2LevelUp()))
         {
             this.level += levelPlus;
             damageCalculator();
+            updateHud();
         }
     }
+
+    decimal cost2LevelUp()
+    {
+        decimal cost = (decimal)gastoBase;
+        cost *= (decimal)Mathf.Pow(1.05f, (level - 1));
+        cost += (decimal)Mathf.Pow(1.05f, (level));
+        //cost *= level^level;
+        //cost *= (decimal)Mathf.Pow(0.904f, (level - 1));
+        cost = System.Math.Ceiling(cost);
+        Debug.Log(cost);
+        return cost;
+    }
+
 
     public void earnGold(decimal valor)
     {
@@ -155,15 +170,20 @@ public class Player : MonoBehaviour {
 
     void damageCalculator()
     {
-        damage = (decimal)(level * Mathf.Pow(1.05f, level));
+        damage = (decimal)(level * Mathf.Pow(1.01f, level));
+        damage = System.Math.Ceiling(damage);
     }
 
 
     private void updateHud()
     {
-        
-        GameObject.FindGameObjectWithTag("HUD#Gold").GetComponent<Text>().text = ""+NumberFormat.getInstance().format(gold);
 
+        GameObject.FindGameObjectWithTag("HUD#Gold").GetComponent<Text>().text = ""+NumberFormat.getInstance().format(gold);
+        PLevel.GetComponent<Text>().text = ""+level;
+        PDamage.GetComponent<Text>().text = NumberFormat.getInstance().format(damage);
+        PCritC.GetComponent<Text>().text = criticalRate+"%";
+        PCritD.GetComponent<Text>().text = ((criticalDamage-1)*100)+"%";
+        PLCost.GetComponent<Text>().text = NumberFormat.getInstance().format(cost2LevelUp());
 
     }
 

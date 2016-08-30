@@ -65,7 +65,7 @@ public class GameEngine : MonoBehaviour {
             if (level == 10) { calculoHP *= 2.5m; }
             calculoHP = System.Math.Ceiling(calculoHP);
 
-            decimal calculoGold = (decimal)(System.Math.Pow(2, fase) / fase);
+            decimal calculoGold = (decimal)(System.Math.Pow(2, fase) / (fase*1.5f))/2;
             calculoGold = System.Math.Ceiling(calculoGold);
 
             enemy.GetComponent<Enemy>().setVida(calculoHP);
@@ -140,8 +140,8 @@ public class GameEngine : MonoBehaviour {
                         firstPart = firstPart[0].Split(',');
                         fase = System.Int32.Parse(firstPart[0]);
                         level = System.Int32.Parse(firstPart[1]);
+                        p.setLevel(1600/*System.Int32.Parse(firstPart[3])*/);
                         p.earnGold(decimal.Parse(firstPart[2]));
-                        p.setLevel(System.Int32.Parse(firstPart[3]));
                         updateHUD();
                         return true;
 

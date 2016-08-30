@@ -23,7 +23,7 @@ public class NumberFormat {
 
         double i = (double)temp.Length / 3;
         i = Math.Ceiling(i);
-        String[] cast = new String[22];
+        String[] cast = new String[30];
         cast[0] = "";
         cast[1] = "K";
         cast[2] = "M";
@@ -46,7 +46,15 @@ public class NumberFormat {
         cast[19] = "oo";
         cast[20] = "pp";
         cast[21] = "qq";
-
+        cast[21] = "rr";
+        cast[22] = "ss";
+        cast[23] = "tt";
+        cast[24] = "uu";
+        cast[25] = "vv";
+        cast[26] = "xx";
+        cast[27] = "ww";
+        cast[28] = "yy";
+        cast[29] = "zz";
 
         if (temp.Length % 3 == 0 && temp.Length > 3) // 000,00
         {
