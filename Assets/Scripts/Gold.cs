@@ -4,7 +4,7 @@ using System.Collections;
 public class Gold : MonoBehaviour {
 
 
-    public decimal gold = 10;
+    public double gold = 10d;
     bool ativado = false;
 
 
@@ -21,7 +21,7 @@ public class Gold : MonoBehaviour {
     {
         if (!ativado)
         {
-            GetComponentInChildren<TextMesh>().text = "+"+ NumberFormat.getInstance().format(gold);
+            GetComponentInChildren<TextMesh>().text = "+"+ BigNumber.getInstance().format(gold.ToString("f0"), 0);
             GameObject.FindGameObjectWithTag("Player").GetComponent<Player>().earnGold(gold);
             ativado = true;            
             GetComponent<Rigidbody2D>().AddForce(Vector2.up * 7f, ForceMode2D.Impulse);

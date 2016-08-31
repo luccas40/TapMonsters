@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using System.Collections;
 using System.IO;
 using System.Text;
+using System;
 
 public class GameEngine : MonoBehaviour {
 
@@ -34,18 +35,22 @@ public class GameEngine : MonoBehaviour {
 
 
     void Start () {
-        start = true;
-        FaseTxt[0] = GameObject.FindGameObjectWithTag("HUD#Fase");
-        FaseTxt[1] = GameObject.FindGameObjectWithTag("HUD#LevelFase");
-        if (!load())
-        {
-            fase = 1;
-            level = 1;
-        }
-        loaded = true;
-        enemySpawn();
+        
+         start = true;
+         FaseTxt[0] = GameObject.FindGameObjectWithTag("HUD#Fase");
+         FaseTxt[1] = GameObject.FindGameObjectWithTag("HUD#LevelFase");
+         if (!load())
+         {
+             fase = 1;
+             level = 1;
+         }
+         loaded = true;
+         enemySpawn();
+         
+       
+
     }
-	
+
 
 
     public void enemySpawn()
@@ -57,16 +62,28 @@ public class GameEngine : MonoBehaviour {
 
             updateHUD();
 
-            int rand = Random.Range(0, Enemies.Length - 1);
+            int rand = UnityEngine.Random.Range(0, Enemies.Length - 1);
             GameObject enemy = Enemies[rand];
             enemy = (GameObject)Instantiate(enemy);
 
-            decimal calculoHP = (decimal)(fase * 29 + System.Math.Pow(1.6, (fase + 1)));
-            if (level == 10) { calculoHP *= 2.5m; }
-            calculoHP = System.Math.Ceiling(calculoHP);
+            double calculoHP = fase * 29;
+            calculoHP *= Math.Pow(1.23f ,(fase + 1)) ;
 
-            decimal calculoGold = (decimal)(System.Math.Pow(2, fase) / (fase*1.5f))/2;
-            calculoGold = System.Math.Ceiling(calculoGold);
+            calculoHP *= Math.Pow(10, (fase/50));
+            if (fase >= 250 && fase < 1000) { calculoHP *= Math.Pow(fase, fase / 100); }
+            if (fase >= 1000 && fase <= 2000) { calculoHP *= Math.Pow(fase, fase / 1000); }
+            if (fase < 100) { calculoHP /= 2; }
+            if (level == 10) { calculoHP *= 2.5; }
+
+            double calculoGold = Math.Pow(1.9, fase);
+            calculoGold /= (fase * 1.5f);
+            calculoGold /= 2 ;
+
+
+            calculoGold = Math.Ceiling(calculoGold);
+            calculoHP = Math.Ceiling(calculoHP);
+
+
 
             enemy.GetComponent<Enemy>().setVida(calculoHP);
             enemy.GetComponent<Enemy>().setGold(calculoGold);
@@ -138,10 +155,10 @@ public class GameEngine : MonoBehaviour {
                     if (tmp.Equals(thirdPart[0]))
                     {
                         firstPart = firstPart[0].Split(',');
-                        fase = System.Int32.Parse(firstPart[0]);
+                        fase = System.Int32.Parse(firstPart[0]);//2700limite
                         level = System.Int32.Parse(firstPart[1]);
-                        p.setLevel(1600/*System.Int32.Parse(firstPart[3])*/);
-                        p.earnGold(decimal.Parse(firstPart[2]));
+                        p.setLevel(System.Int32.Parse(firstPart[3]));
+                        p.earnGold(double.Parse(firstPart[2]));
                         updateHUD();
                         return true;
 

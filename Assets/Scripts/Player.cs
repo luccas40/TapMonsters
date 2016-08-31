@@ -13,16 +13,16 @@ public class Player : MonoBehaviour {
 
 
 
-    float gastoBase = 10;
+    double gastoBase = 10;
 
 
-    private decimal gold = 0;
+    private double gold = 0;
 
 
     private int level = 1;
     private float criticalRate = 1f;
     private float criticalDamage = 1.5f;
-    private decimal damage = 1m;
+    private double damage = 1d;
 
 
 
@@ -101,26 +101,23 @@ public class Player : MonoBehaviour {
         }
     }
 
-    decimal cost2LevelUp()
+    double cost2LevelUp()
     {
-        decimal cost = (decimal)gastoBase;
-        cost *= (decimal)Mathf.Pow(1.05f, (level - 1));
-        cost += (decimal)Mathf.Pow(1.05f, (level));
-        //cost *= level^level;
-        //cost *= (decimal)Mathf.Pow(0.904f, (level - 1));
-        cost = System.Math.Ceiling(cost);
-        Debug.Log(cost);
+        double cost = gastoBase;
+        cost = System.Math.Pow(1.03d, (level - 1));
+        cost *= System.Math.Pow(1.05d, level);
+        cost *= System.Math.Pow(0.997f, (level - 1));
         return cost;
     }
 
 
-    public void earnGold(decimal valor)
+    public void earnGold(double valor)
     {
         gold += valor;
         updateHud();
     }
 
-    public bool loseGold(decimal valor)
+    public bool loseGold(double valor)
     {
         if(gold < valor){ return false; }
         gold -= valor;
@@ -134,56 +131,55 @@ public class Player : MonoBehaviour {
         damageCalculator();
     }
 
-    public decimal getGold() { return this.gold;  }
+    public double getGold() { return this.gold;  }
     public int getLevel() { return this.level; }
 
 
     private void attack()
     {
+        
         GameObject enemy = GameObject.FindGameObjectWithTag("Enemy");
         if (enemy != null && !enemy.GetComponent<Enemy>().death)
         {
-
+            GameObject dmgObj;
             float rand = Random.Range(1, 100);
-            decimal danoCalc;
+            double danoCalc;
             if (rand > 0 && rand <= criticalRate) //critico
             {
-                danoCalc = damage * decimal.Parse("" + criticalDamage);
-                danoCalc = System.Math.Ceiling(danoCalc);
+                danoCalc = damage * criticalDamage;
                 Object dmgTxt = Resources.Load("Prefabs/Damage/DamageTxtCritical", typeof(GameObject));
-                GameObject dmgObj = (GameObject)Instantiate(dmgTxt);
-                dmgObj.GetComponent<TextMesh>().text = NumberFormat.getInstance().format(danoCalc);
+                dmgObj = (GameObject)Instantiate(dmgTxt);
+                
             }
             else //dano normal
             {
                 danoCalc = damage;
-                danoCalc = System.Math.Ceiling(danoCalc);
                 Object dmgTxt = Resources.Load("Prefabs/Damage/DamageTxt", typeof(GameObject));
-                GameObject dmgObj = (GameObject)Instantiate(dmgTxt);
-                dmgObj.GetComponent<TextMesh>().text = NumberFormat.getInstance().format(danoCalc);
+                dmgObj = (GameObject)Instantiate(dmgTxt);
             }
+            dmgObj.GetComponent<TextMesh>().text = BigNumber.getInstance().format(danoCalc.ToString("f0"), 0);
             enemy.GetComponent<Enemy>().hitMe(danoCalc);
         }
+        
     }
 
 
 
     void damageCalculator()
     {
-        damage = (decimal)(level * Mathf.Pow(1.01f, level));
-        damage = System.Math.Ceiling(damage);
+        damage = level * (System.Math.Pow(1.03d, level));
     }
 
 
     private void updateHud()
     {
 
-        GameObject.FindGameObjectWithTag("HUD#Gold").GetComponent<Text>().text = ""+NumberFormat.getInstance().format(gold);
+        GameObject.FindGameObjectWithTag("HUD#Gold").GetComponent<Text>().text = BigNumber.getInstance().format(gold.ToString("f0"), 0);
         PLevel.GetComponent<Text>().text = ""+level;
-        PDamage.GetComponent<Text>().text = NumberFormat.getInstance().format(damage);
+        PDamage.GetComponent<Text>().text = BigNumber.getInstance().format(damage.ToString("f0"), 0);
         PCritC.GetComponent<Text>().text = criticalRate+"%";
         PCritD.GetComponent<Text>().text = ((criticalDamage-1)*100)+"%";
-        PLCost.GetComponent<Text>().text = NumberFormat.getInstance().format(cost2LevelUp());
+        PLCost.GetComponent<Text>().text = BigNumber.getInstance().format(cost2LevelUp().ToString("f0"), 0);
 
     }
 

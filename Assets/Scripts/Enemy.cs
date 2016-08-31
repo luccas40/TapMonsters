@@ -7,9 +7,9 @@ public class Enemy : MonoBehaviour {
 
     public string nameMonster;
     public float gastoBase;
-    decimal health;
-    decimal maxHealth;
-    decimal gold;
+    double health;
+    double maxHealth;
+    double gold;
 
     public bool death = false;
 
@@ -21,23 +21,23 @@ public class Enemy : MonoBehaviour {
         anim = this.gameObject.GetComponent<Animator>();
     }
 
-    public void setVida(decimal hp)
+    public void setVida(double hp)
     {
         this.health = this.maxHealth = hp;
         updateHud();
     }
 
-    public void setGold(decimal gold)
+    public void setGold(double gold)
     {
         this.gold = gold;
     }
 
-    public void hitMe(decimal damage)
+    public void hitMe(double damage)
     {
         if (!death)
         {
-            health = Decimal.Subtract(health, damage);
-            if (health <= Decimal.Zero)
+            health -= damage;
+            if (health <= 0)
             {
                 death = true;
                 health = 0;
@@ -63,7 +63,11 @@ public class Enemy : MonoBehaviour {
         for(int i = 0; i<rand; i++)
         {
             coin = (GameObject)Instantiate(goldpref, coinPosition, new Quaternion());
-            coin.GetComponent<Gold>().gold = Math.Ceiling(gold / rand);
+            double bn = gold / rand;
+            bn = Math.Ceiling(bn);
+            //Debug.Log(bn.valor);
+            coin.GetComponent<Gold>().gold = bn;
+               
         }
         StartCoroutine(waitFinishAnimation());
     }
@@ -85,15 +89,15 @@ public class Enemy : MonoBehaviour {
         GameObject healthCanvas = GameObject.FindGameObjectWithTag("HUD#HPValue");
         GameObject nameCanvas = GameObject.FindGameObjectWithTag("HUD#MName");
 
-        decimal division;
-        if (health != 0 && maxHealth != 0)
+        double division;
+        if (health > 0  && maxHealth > 0)
         {
-            division = Decimal.Divide(health, maxHealth);
+            division = health / maxHealth;
         }
         else { division = 0; }
 
-        healthBar.GetComponent<RectTransform>().localScale = new Vector3( (float)division, 1, 1);
-        healthCanvas.GetComponent<Text>().text = NumberFormat.getInstance().format(health);
+        healthBar.GetComponent<RectTransform>().localScale = new Vector3( float.Parse(division.ToString()), 1, 1);
+        healthCanvas.GetComponent<Text>().text = BigNumber.getInstance().format(health.ToString("f0"), 0);
         nameCanvas.GetComponent<Text>().text = nameMonster;
     }
 
