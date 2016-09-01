@@ -157,7 +157,7 @@ public class Player : MonoBehaviour {
                 Object dmgTxt = Resources.Load("Prefabs/Damage/DamageTxt", typeof(GameObject));
                 dmgObj = (GameObject)Instantiate(dmgTxt);
             }
-            dmgObj.GetComponent<TextMesh>().text = BigNumber.getInstance().format(danoCalc.ToString("f0"), 0);
+            dmgObj.GetComponent<TextMesh>().text = Util.getInstance().format(danoCalc.ToString("f0"), 0);
             enemy.GetComponent<Enemy>().hitMe(danoCalc);
         }
         
@@ -174,13 +174,12 @@ public class Player : MonoBehaviour {
     private void updateHud()
     {
 
-        GameObject.FindGameObjectWithTag("HUD#Gold").GetComponent<Text>().text = BigNumber.getInstance().format(gold.ToString("f0"), 0);
+        GameObject.FindGameObjectWithTag("HUD#Gold").GetComponent<Text>().text = Util.getInstance().format(gold.ToString("f0"), 0);
         PLevel.GetComponent<Text>().text = ""+level;
-        PDamage.GetComponent<Text>().text = BigNumber.getInstance().format(damage.ToString("f0"), 0);
+        PDamage.GetComponent<Text>().text = Util.getInstance().format(damage.ToString("f0"), 0);
         PCritC.GetComponent<Text>().text = criticalRate+"%";
         PCritD.GetComponent<Text>().text = ((criticalDamage-1)*100)+"%";
-        PLCost.GetComponent<Text>().text = BigNumber.getInstance().format(cost2LevelUp().ToString("f0"), 0);
-
+        PLCost.GetComponent<Text>().text = Util.getInstance().format(cost2LevelUp().ToString("f0"), 0);
     }
 
 

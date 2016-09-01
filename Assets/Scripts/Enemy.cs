@@ -97,7 +97,7 @@ public class Enemy : MonoBehaviour {
         else { division = 0; }
 
         healthBar.GetComponent<RectTransform>().localScale = new Vector3( float.Parse(division.ToString()), 1, 1);
-        healthCanvas.GetComponent<Text>().text = BigNumber.getInstance().format(health.ToString("f0"), 0);
+        healthCanvas.GetComponent<Text>().text = Util.getInstance().format(health.ToString("f0"), 0);
         nameCanvas.GetComponent<Text>().text = nameMonster;
     }
 

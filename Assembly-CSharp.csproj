@@ -45,14 +45,14 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Scripts\BigNumber.cs" />
      <Compile Include="Assets\Scripts\DamageTextScript.cs" />
      <Compile Include="Assets\Scripts\Enemy.cs" />
      <Compile Include="Assets\Scripts\GameEngine.cs" />
      <Compile Include="Assets\Scripts\Gold.cs" />
      <Compile Include="Assets\Scripts\HUDControl.cs" />
-     <Compile Include="Assets\Scripts\NumberFormat.cs" />
      <Compile Include="Assets\Scripts\Player.cs" />
+     <Compile Include="Assets\Scripts\Soldier.cs" />
+     <Compile Include="Assets\Scripts\Util.cs" />
      <None Include="Assets\resources\fonts\License.txt" />
  <Reference Include="UnityEngine.UI">
  <HintPath>D:/Unity3D/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>

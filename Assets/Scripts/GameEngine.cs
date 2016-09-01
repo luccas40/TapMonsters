@@ -112,9 +112,9 @@ public class GameEngine : MonoBehaviour {
     public void save()
     {
         Player p = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
-        string data = "{"+fase+","+level+","+p.getGold()+","+p.getLevel()+"}{"+ NumberFormat.getInstance().encrypt(passwordSave) +"}";
+        string data = "{"+fase+","+level+","+p.getGold()+","+p.getLevel()+"}{"+ Util.getInstance().encrypt(passwordSave) +"}";
         data += "{"+(data.GetHashCode()*data.Length)+"}";
-        data = NumberFormat.getInstance().encrypt(data);
+        data = Util.getInstance().encrypt(data);
 
         if (!Directory.Exists(Application.persistentDataPath + "/data")) { Directory.CreateDirectory(Application.persistentDataPath + "/data"); }
         
@@ -138,14 +138,14 @@ public class GameEngine : MonoBehaviour {
                 sr.Close();
                 fs.Close();
 
-                data = NumberFormat.getInstance().decrypt(data);
+                data = Util.getInstance().decrypt(data);
                 string[] firstPart = data.Split('{');
                 string[] secondPart = firstPart[2].Split('}');
                 string[] thirdPart = firstPart[3].Split('}');
                 firstPart = firstPart[1].Split('}');
 
 
-                string pass = NumberFormat.getInstance().encrypt(passwordSave);
+                string pass = Util.getInstance().encrypt(passwordSave);
 
 
                 if (pass.Equals(secondPart[0]))
@@ -180,7 +180,7 @@ public class GameEngine : MonoBehaviour {
 
             return false;
         }
-        catch (System.IndexOutOfRangeException e) { return false;  }
+        catch (System.IndexOutOfRangeException e) { Debug.Log(e.Message); return false;  }
     }
 
 
