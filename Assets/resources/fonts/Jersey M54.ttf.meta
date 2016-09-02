@@ -1,6 +1,6 @@
 fileFormatVersion: 2
-guid: 8b4b093e6ed81ff499ea5a4709d501d8
-timeCreated: 1472663671
+guid: 0f730e995e9d5af4ea2b2f59d27f96a7
+timeCreated: 1472786962
 licenseType: Free
 TrueTypeFontImporter:
   serializedVersion: 4
@@ -10,7 +10,7 @@ TrueTypeFontImporter:
   characterPadding: 1
   includeFontData: 1
   fontNames:
-  - Stentiga
+  - Jersey M54
   fallbackFontReferences: []
   customCharacters: 
   fontRenderingMode: 0
