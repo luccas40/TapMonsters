@@ -45,12 +45,14 @@ public class GameEngine : MonoBehaviour {
         }
          loaded = true;
          enemySpawn();
-         
-       
-
     }
 
 
+
+    public void cantKillBoss()
+    {
+        fase--;
+    }
 
     public void enemySpawn()
     {
@@ -66,9 +68,9 @@ public class GameEngine : MonoBehaviour {
             enemy = (GameObject)Instantiate(enemy);
 
             double calculoHP = fase * 29;
-            calculoHP *= Math.Pow(1.23f ,(fase + 1)) ;
+            calculoHP *= Math.Pow(1.23f, (fase + 1));
 
-            calculoHP *= Math.Pow(10, (fase/50));
+            calculoHP *= Math.Pow(10, (fase / 50));
             if (fase >= 250 && fase < 1000) { calculoHP *= Math.Pow(fase, fase / 100); }
             if (fase >= 1000 && fase <= 2000) { calculoHP *= Math.Pow(fase, fase / 1000); }
             if (fase < 100) { calculoHP /= 2; }
@@ -76,7 +78,7 @@ public class GameEngine : MonoBehaviour {
 
             double calculoGold = Math.Pow(1.9, fase);
             calculoGold /= (fase * 1.5f);
-            calculoGold /= 2 ;
+            calculoGold /= 2;
 
 
             calculoGold = Math.Ceiling(calculoGold);
@@ -86,6 +88,9 @@ public class GameEngine : MonoBehaviour {
 
             enemy.GetComponent<Enemy>().setVida(calculoHP);
             enemy.GetComponent<Enemy>().setGold(calculoGold);
+
+            if (level == 10) { enemy.GetComponent<Enemy>().setBoss(30f); }
+
         }
         else
         {

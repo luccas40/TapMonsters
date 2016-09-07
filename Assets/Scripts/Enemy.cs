@@ -11,6 +11,9 @@ public class Enemy : MonoBehaviour {
     double maxHealth;
     double gold;
 
+    float tempo;
+    GameObject timer;
+
     public bool death = false;
 
     Animator anim;
@@ -19,6 +22,7 @@ public class Enemy : MonoBehaviour {
     {
         Physics2D.IgnoreLayerCollision(LayerMask.NameToLayer("Enemy"), LayerMask.NameToLayer("Enemy"));
         anim = this.gameObject.GetComponent<Animator>();
+        timer = GameObject.Find("Canvas/HUD/MonsterHUD/Timer/Time");
     }
 
     public void setVida(double hp)
@@ -50,9 +54,32 @@ public class Enemy : MonoBehaviour {
         }
     }
 
+    public void setBoss(float tempo)
+    {
+        this.tempo = tempo;
+        StartCoroutine(bossTime());
+    }
+
+    IEnumerator bossTime()
+    {
+
+        while(tempo > 0)
+        {
+            yield return new WaitForSeconds(0.1f);
+            tempo -= 0.1f;
+            timer.GetComponent<Text>().text = tempo.ToString("0 0 . 0");
+        }
+        GameObject.Find("GameEngine").GetComponent<GameEngine>().cantKillBoss();
+        timer.GetComponent<Text>().text = "";
+        finishDeathAnimation();
+    }
+
     private void Death()
     {
         anim.SetTrigger("death");
+
+        if(tempo > 0) { StopAllCoroutines(); timer.GetComponent<Text>().text = ""; }
+
         UnityEngine.Object goldpref = Resources.Load("Prefabs/Coin", typeof(GameObject));
 
         int rand = UnityEngine.Random.Range(2, 8);
@@ -65,20 +92,12 @@ public class Enemy : MonoBehaviour {
             coin = (GameObject)Instantiate(goldpref, coinPosition, new Quaternion());
             double bn = gold / rand;
             bn = Math.Ceiling(bn);
-            //Debug.Log(bn.valor);
             coin.GetComponent<Gold>().gold = bn;
-               
         }
-        StartCoroutine(waitFinishAnimation());
     }
 
-    IEnumerator waitFinishAnimation()
+    private void  finishDeathAnimation() //Executar quando a animação de morte acabar
     {
-
-        while (!anim.GetCurrentAnimatorStateInfo(0).IsName("AfterDeath"))
-        {
-            yield return null;
-        }
         GameObject.FindGameObjectWithTag("GameEngine").GetComponent<GameEngine>().enemySpawn();
         Destroy(gameObject);
     }

@@ -4,60 +4,32 @@ using System.Collections;
 public class HUDControl : MonoBehaviour {
 
 
-    public GameObject HeroPane;
-    public GameObject SoldierPane;
+    public GameObject[] Paineis;
 
 
-
-    public void HeroPaneOn()
+    public void PaneOn(int id)
     {
-        if (!HeroPane.activeSelf)
+        id--;
+        if (Paineis[id].activeSelf)
         {
-            HeroPane.SetActive(true);
+            PaneOff();
         }else
         {
-            HeroPane.SetActive(false);
+            PaneOff();
+            Paineis[id].SetActive(true);
         }
     }
 
 
-    public void SoldierPaneOn()
+    void PaneOff()
     {
-        if (!SoldierPane.activeSelf)
+        foreach(GameObject o in Paineis)
         {
-            SoldierPane.SetActive(true);
-        }
-        else
-        {
-            SoldierPane.SetActive(false);
+            o.SetActive(false);
         }
     }
 
 
-    public void EssencePaneOn()
-    {
-        if (!HeroPane.activeSelf)
-        {
-            HeroPane.SetActive(true);
-        }
-        else
-        {
-            HeroPane.SetActive(false);
-        }
-    }
-
-
-    public void ScrollPaneOn()
-    {
-        if (!HeroPane.activeSelf)
-        {
-            HeroPane.SetActive(true);
-        }
-        else
-        {
-            HeroPane.SetActive(false);
-        }
-    }
 
 
 
