@@ -5,6 +5,8 @@ public class HUDControl : MonoBehaviour {
 
 
     public GameObject HeroPane;
+    public GameObject SoldierPane;
+
 
 
     public void HeroPaneOn()
@@ -14,14 +16,49 @@ public class HUDControl : MonoBehaviour {
             HeroPane.SetActive(true);
         }else
         {
-            HeroPaneOff();
+            HeroPane.SetActive(false);
         }
     }
 
-    public void HeroPaneOff()
+
+    public void SoldierPaneOn()
     {
-        HeroPane.SetActive(false);
+        if (!SoldierPane.activeSelf)
+        {
+            SoldierPane.SetActive(true);
+        }
+        else
+        {
+            SoldierPane.SetActive(false);
+        }
     }
+
+
+    public void EssencePaneOn()
+    {
+        if (!HeroPane.activeSelf)
+        {
+            HeroPane.SetActive(true);
+        }
+        else
+        {
+            HeroPane.SetActive(false);
+        }
+    }
+
+
+    public void ScrollPaneOn()
+    {
+        if (!HeroPane.activeSelf)
+        {
+            HeroPane.SetActive(true);
+        }
+        else
+        {
+            HeroPane.SetActive(false);
+        }
+    }
+
 
 
 }

@@ -5,21 +5,17 @@ using System.Collections;
 public class Player : MonoBehaviour {
 
 
-    public GameObject PLevel;
-    public GameObject PDamage;
-    public GameObject PCritC;
-    public GameObject PCritD;
-    public GameObject PLCost;
+    public GameObject heroPainel;
 
+
+
+    private Soldier[] soldiers = new Soldier[10];
 
 
     double gastoBase = 10;
 
-
-    private double gold = 0;
-
-
     private int level = 1;
+    private double gold = 0;
     private float criticalRate = 1f;
     private float criticalDamage = 1.5f;
     private double damage = 1d;
@@ -91,6 +87,46 @@ public class Player : MonoBehaviour {
     }
 
 
+    public void setSoldier(int id, int level)
+    {
+        if (soldiers[id] == null)
+        {
+            instantiateSoldier(id, level);
+        }
+        else
+        {
+            soldiers[id].setLevel(level);
+        }
+
+        updateSoldierTotalDamage();
+    }
+
+    public void levelUpSoldier(int id)
+    {
+        if (soldiers[id] == null)
+        {
+            instantiateSoldier(id, 1);
+        }
+        else
+        {
+            soldiers[id].levelUp();
+        }
+
+        updateSoldierTotalDamage();
+    }
+
+    void instantiateSoldier(int id, int level)
+    {
+        GameObject t = (GameObject)Instantiate(Resources.Load("Prefabs/Soldiers/Soldier" + id, typeof(GameObject)));
+        GameObject btn = GameObject.Find("Canvas/HUD/SoldierPanel/Scroll View/Viewport/Content/Soldier" + id + "Btn");
+        Soldier s = t.GetComponent<Soldier>();
+        s.setButton(btn);
+        s.setLevel(level);
+        soldiers[id] = s;
+    }
+
+    public Soldier[] getSoldiers() { return soldiers; }
+
     public void levelUp(int levelPlus)
     {
         if (loseGold(cost2LevelUp()))
@@ -134,7 +170,6 @@ public class Player : MonoBehaviour {
     public double getGold() { return this.gold;  }
     public int getLevel() { return this.level; }
 
-
     private void attack()
     {
         
@@ -164,23 +199,34 @@ public class Player : MonoBehaviour {
     }
 
 
-
     void damageCalculator()
     {
         damage = level * (System.Math.Pow(1.03d, level));
     }
 
+    private void updateSoldierTotalDamage()
+    {
+        double sDamageTotal = 0;
+        foreach (Soldier s in soldiers)
+        {
+            if (s != null) { sDamageTotal += s.getDamage(); }
+        }
+
+        GameObject.Find("Canvas/HUD/SoldierPanel/Scroll View/Viewport/Content/TotalDamageTXT/DanoTotal").GetComponent<Text>().text = "" + sDamageTotal;
+    }
 
     private void updateHud()
     {
 
         GameObject.FindGameObjectWithTag("HUD#Gold").GetComponent<Text>().text = Util.getInstance().format(gold.ToString("f0"), 0);
-        PLevel.GetComponent<Text>().text = ""+level;
-        PDamage.GetComponent<Text>().text = Util.getInstance().format(damage.ToString("f0"), 0);
-        PCritC.GetComponent<Text>().text = criticalRate+"%";
-        PCritD.GetComponent<Text>().text = ((criticalDamage-1)*100)+"%";
-        PLCost.GetComponent<Text>().text = Util.getInstance().format(cost2LevelUp().ToString("f0"), 0);
-    }
+        Text[] t = heroPainel.GetComponentsInChildren<Text>();
+        t[3].GetComponentInChildren<Text>().text = ""+level;
+        t[5].GetComponentInChildren<Text>().text = Util.getInstance().format(damage.ToString("f0"), 0);
+        t[7].GetComponentInChildren<Text>().text = criticalRate+"%";
+        t[9].GetComponentInChildren<Text>().text = ((criticalDamage-1)*100)+"%";
+        t[1].text = Util.getInstance().format(cost2LevelUp().ToString("f0"), 0);
+
+        }
 
 
 }

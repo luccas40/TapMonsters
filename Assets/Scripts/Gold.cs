@@ -11,6 +11,7 @@ public class Gold : MonoBehaviour {
 	void Start () {
         Physics2D.IgnoreLayerCollision(LayerMask.NameToLayer("GoldCoin"), LayerMask.NameToLayer("Enemy"));
         Physics2D.IgnoreLayerCollision(LayerMask.NameToLayer("GoldCoin"), LayerMask.NameToLayer("GoldCoin"));
+        Physics2D.IgnoreLayerCollision(LayerMask.NameToLayer("GoldCoin"), LayerMask.NameToLayer("Soldier"));
         float rand = UnityEngine.Random.Range(-.32f, .32f);
         GetComponent<Rigidbody2D>().AddForce(new Vector2(rand, 1.3f) *7f, ForceMode2D.Impulse);
         StartCoroutine(getOuroSemClicar());
@@ -39,7 +40,7 @@ public class Gold : MonoBehaviour {
     IEnumerator getOuroSemClicar()
     {
 
-        yield return new WaitForSeconds(5f);
+        yield return new WaitForSeconds(2.5f);
         hitGold();
     }
 

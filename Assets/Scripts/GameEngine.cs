@@ -39,11 +39,10 @@ public class GameEngine : MonoBehaviour {
          start = true;
          FaseTxt[0] = GameObject.FindGameObjectWithTag("HUD#Fase");
          FaseTxt[1] = GameObject.FindGameObjectWithTag("HUD#LevelFase");
-         if (!load())
-         {
-             fase = 1;
-             level = 1;
-         }
+        if (!load())
+        {
+            setUpNewGame();
+        }
          loaded = true;
          enemySpawn();
          
@@ -112,8 +111,25 @@ public class GameEngine : MonoBehaviour {
     public void save()
     {
         Player p = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
-        string data = "{"+fase+","+level+","+p.getGold()+","+p.getLevel()+"}{"+ Util.getInstance().encrypt(passwordSave) +"}";
-        data += "{"+(data.GetHashCode()*data.Length)+"}";
+
+        string playerInfo = "{" + fase + "," + level + "," + p.getGold() + "," + p.getLevel() + "}";
+        string soldiersInfo = "{";
+        foreach(Soldier s in p.getSoldiers())
+        {
+            if (s != null)
+            {
+                soldiersInfo += s.id + ";" + s.getLevel() + ",";
+            }
+        }
+        soldiersInfo.Substring(0, soldiersInfo.Length - 1);
+        soldiersInfo += "}";
+
+
+        string passwordGame = "{" + Util.getInstance().encrypt(passwordSave) + "}";
+        string data = playerInfo + soldiersInfo + passwordGame;
+        string hashCode = "{" + Math.Abs(data.GetHashCode()*data.Length).ToString() + "}";
+
+        data += hashCode;
         data = Util.getInstance().encrypt(data);
 
         if (!Directory.Exists(Application.persistentDataPath + "/data")) { Directory.CreateDirectory(Application.persistentDataPath + "/data"); }
@@ -121,7 +137,6 @@ public class GameEngine : MonoBehaviour {
         FileStream fs = File.Open(Application.persistentDataPath + "/data/01110011011000010111011001100101.ide", FileMode.OpenOrCreate);
         byte[] dataPersist = new UTF8Encoding(true).GetBytes(data);
         fs.Write(dataPersist, 0, dataPersist.Length);
-        fs.Flush();
         fs.Close();
     }
 
@@ -139,26 +154,39 @@ public class GameEngine : MonoBehaviour {
                 fs.Close();
 
                 data = Util.getInstance().decrypt(data);
-                string[] firstPart = data.Split('{');
-                string[] secondPart = firstPart[2].Split('}');
-                string[] thirdPart = firstPart[3].Split('}');
-                firstPart = firstPart[1].Split('}');
+                string[] brute = data.Split('{');
+                string[] soldiersInfo = brute[2].Split('}');
+                string[] passwordGame = brute[3].Split('}');
+                string[] hashCode = brute[4].Split('}');
+                string[] playerInfo = brute[1].Split('}');
 
 
                 string pass = Util.getInstance().encrypt(passwordSave);
 
 
-                if (pass.Equals(secondPart[0]))
+                if (pass.Equals(passwordGame[0]))
                 {
-                    string tmp = "{" + firstPart[0] + "}{" + pass + "}";
-                    tmp = "" + (tmp.GetHashCode() * tmp.Length);
-                    if (tmp.Equals(thirdPart[0]))
+                    string tmp = "{" + playerInfo[0] + "}{"+soldiersInfo[0]+"}{" + pass + "}";
+                    tmp = Math.Abs(tmp.GetHashCode() * tmp.Length).ToString();
+                    if (tmp.Equals(hashCode[0]))
                     {
-                        firstPart = firstPart[0].Split(',');
-                        fase = System.Int32.Parse(firstPart[0]);//2700limite
-                        level = System.Int32.Parse(firstPart[1]);
-                        p.setLevel(System.Int32.Parse(firstPart[3]));
-                        p.earnGold(double.Parse(firstPart[2]));
+                        playerInfo = playerInfo[0].Split(',');
+                        fase = System.Int32.Parse(playerInfo[0]);//2700limite
+                        level = System.Int32.Parse(playerInfo[1]);
+                        p.setLevel(System.Int32.Parse(playerInfo[3]));
+                        p.earnGold(double.Parse(playerInfo[2]));
+
+                        soldiersInfo = soldiersInfo[0].Split(',');
+                        foreach(string s in soldiersInfo)
+                        {
+                            if (!"".Equals(s))
+                            {
+                                string[] temporario = s.Split(';');
+                                p.setSoldier(int.Parse(temporario[0]), int.Parse(temporario[1]));
+                            }
+                        }
+                        
+
                         updateHUD();
                         return true;
 
@@ -184,5 +212,13 @@ public class GameEngine : MonoBehaviour {
     }
 
 
+
+    private void setUpNewGame()
+    {
+        fase = 1;
+        level = 1;
+        Player p = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
+        p.setLevel(1);
+    }
 
 }
