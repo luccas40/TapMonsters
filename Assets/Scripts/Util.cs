@@ -2,7 +2,10 @@
 using UnityEngine.UI;
 using System.Collections;
 using System;
+using System.Text;
 using System.Text.RegularExpressions;
+using System.Configuration;
+using System.Security.Cryptography;
 
 public class Util {
 
@@ -24,29 +27,62 @@ public class Util {
         return instance;
     }
 
-    public string encrypt(string txt)
+	public string encrypt(string toEncrypt, bool useHashing = true)
     {
-        string newString = "";
-        foreach (char c in txt)
-        {
-            newString += (int)c * 7;
-        }
+        
+		byte[] keyArray;
+		byte[] toEncryptArray = UTF8Encoding.UTF8.GetBytes (toEncrypt);
+		string key = "#jogoDoPanda";
 
-        return newString;
+		if (useHashing)
+		{
+			MD5CryptoServiceProvider hashmd5 = new MD5CryptoServiceProvider();
+			keyArray = hashmd5.ComputeHash(UTF8Encoding.UTF8.GetBytes(key));
+			hashmd5.Clear();
+		}
+		else
+			keyArray = UTF8Encoding.UTF8.GetBytes(key);
+
+		TripleDESCryptoServiceProvider tdes = new TripleDESCryptoServiceProvider();
+		tdes.Key = keyArray;
+		tdes.Mode = CipherMode.ECB;
+		tdes.Padding = PaddingMode.PKCS7;
+
+		ICryptoTransform cTransform = tdes.CreateEncryptor();
+		byte[] resultArray = cTransform.TransformFinalBlock(toEncryptArray, 0, toEncryptArray.Length);
+		tdes.Clear();
+
+		return Convert.ToBase64String(resultArray, 0, resultArray.Length);
     }
 
-    public string decrypt(string txt)
+	public string decrypt(string toDecrypt, bool useHashing = true)
     {
-        char[] c = txt.ToCharArray();
-        string newString = "";
-        for (int i = 0; i < c.Length; i = i + 3)
-        {
-            int d;
-            Int32.TryParse(c[i] + "" + c[i + 1] + "" + c[i + 2], out d);
-            newString += (char)(d / 7);
-        }
+		byte[] keyArray;
+		byte[] toEncryptArray = Convert.FromBase64String(toDecrypt);
+		string key = "#jogoDoPanda";
 
-        return newString;
+		if (useHashing)
+		{
+			MD5CryptoServiceProvider hashmd5 = new MD5CryptoServiceProvider();
+			keyArray = hashmd5.ComputeHash(UTF8Encoding.UTF8.GetBytes(key));
+
+			hashmd5.Clear();
+		}
+		else
+		{
+			keyArray = UTF8Encoding.UTF8.GetBytes(key);
+		}
+
+		TripleDESCryptoServiceProvider tdes = new TripleDESCryptoServiceProvider();
+		tdes.Key = keyArray;
+		tdes.Mode = CipherMode.ECB;
+		tdes.Padding = PaddingMode.PKCS7;
+
+		ICryptoTransform cTransform = tdes.CreateDecryptor();
+		byte[] resultArray = cTransform.TransformFinalBlock(toEncryptArray, 0, toEncryptArray.Length);       
+		tdes.Clear();
+
+		return UTF8Encoding.UTF8.GetString(resultArray);
     }
 
 
