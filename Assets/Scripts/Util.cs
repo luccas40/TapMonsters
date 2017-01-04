@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Configuration;
 using System.Security.Cryptography;
+using System.IO;
 
 public class Util {
 
@@ -16,6 +17,8 @@ public class Util {
             "IDE", "IDE", "IDE", "IDE", "IDE", "IDE", "IDE", "IDE", "IDE", "IDE", "IDE", "IDE", "IDE", "IDE",
             "IDE", "IDE", "IDE", "IDE", "IDE", "IDE", "IDE", "IDE", "IDE", "IDE", "IDE", "IDE"
         };
+
+	private string passwordSave = "#suamaequeroverquemvaidecryptografarisso#";
 
     private static Util instance;
 
@@ -116,6 +119,103 @@ public class Util {
         }
     }
 
+
+
+	public void saveGame(GameEngine ge)
+	{
+		Player p = ge.getPlayer ();
+
+		string playerInfo = "{" + ge.getFaseNum() + "," + ge.getLevelNum() + "," + p.getGold() + "," + p.getLevel() + "}";
+		string soldiersInfo = "{";
+		foreach(Soldier s in p.getSoldiers())
+		{
+			if (s != null)
+			{
+				soldiersInfo += s.id + ";" + s.getLevel() + ",";
+			}
+		}
+		soldiersInfo.Substring(0, soldiersInfo.Length - 1);
+		soldiersInfo += "}";
+
+
+		string passwordGame = "{" + Util.getInstance().encrypt(passwordSave) + "}";
+		string data = playerInfo + soldiersInfo + passwordGame;
+		string hashCode = "{" + Math.Abs(data.GetHashCode()*data.Length).ToString() + "}";
+
+		data += hashCode;
+		data = Util.getInstance().encrypt(data);
+
+		if (!Directory.Exists(Application.persistentDataPath + "/data")) { Directory.CreateDirectory(Application.persistentDataPath + "/data"); }
+
+		FileStream fs = File.Open(Application.persistentDataPath + "/data/01110011011000010111011001100101.ide", FileMode.OpenOrCreate);
+		byte[] dataPersist = new UTF8Encoding(true).GetBytes(data);
+		fs.Write(dataPersist, 0, dataPersist.Length);
+		fs.Close();
+	}
+
+	public void loadGame(out int fase, out int level, out Player p)
+	{
+		fase = 1;
+		level = 1;
+		p = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
+		p.setLevel (1);
+
+		try
+		{
+			if (File.Exists(Application.persistentDataPath + "/data/01110011011000010111011001100101.ide"))
+			{
+				FileStream fs = File.Open(Application.persistentDataPath + "/data/01110011011000010111011001100101.ide", FileMode.Open);
+				StreamReader sr = new StreamReader(fs);
+				string data = sr.ReadLine();
+				sr.Close();
+				fs.Close();
+
+				data = Util.getInstance().decrypt(data);
+				string[] brute = data.Split('{');
+				string[] soldiersInfo = brute[2].Split('}');
+				string[] passwordGame = brute[3].Split('}');
+				string[] hashCode = brute[4].Split('}');
+				string[] playerInfo = brute[1].Split('}');
+
+
+				string pass = Util.getInstance().encrypt(passwordSave);
+
+
+				if (pass.Equals(passwordGame[0]))
+				{
+					string tmp = "{" + playerInfo[0] + "}{"+soldiersInfo[0]+"}{" + pass + "}";
+					tmp = Math.Abs(tmp.GetHashCode() * tmp.Length).ToString();
+					if (tmp.Equals(hashCode[0]))
+					{
+						playerInfo = playerInfo[0].Split(',');
+						fase = System.Int32.Parse(playerInfo[0]);//2700limite
+						level = System.Int32.Parse(playerInfo[1]);
+						p.setLevel(System.Int32.Parse(playerInfo[3]));
+						p.earnGold(double.Parse(playerInfo[2]));
+
+						soldiersInfo = soldiersInfo[0].Split(',');
+						foreach(string s in soldiersInfo)
+						{
+							if (!"".Equals(s))
+							{
+								string[] temporario = s.Split(';');
+								p.setSoldier(int.Parse(temporario[0]), int.Parse(temporario[1]));
+							}
+						}
+					}
+					else
+					{
+						//new game hack noob
+					}
+				}
+				else
+				{
+					//new game hack noob
+				}
+			}
+		}
+		catch (System.IndexOutOfRangeException e) { Debug.Log(e.Message); }
+	}
 
 
 
