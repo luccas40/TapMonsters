@@ -129,19 +129,20 @@ public class Player : MonoBehaviour {
 
     public void levelUp(int levelPlus)
     {
-        if (loseGold(cost2LevelUp()))
-        {
-            this.level += levelPlus;
-            damageCalculator();
-            updateHud();
-        }
+        if(level < 5000)
+            if (loseGold(cost2LevelUp()))
+            {
+                this.level += levelPlus;
+                damageCalculator();
+                updateHud();
+            }
     }
 
     double cost2LevelUp()
     {
-        double cost = gastoBase;
-        cost = System.Math.Pow(1.03d, (level - 1));
-        cost *= System.Math.Pow(1.05d, level);
+        double cost = gastoBase * level / 2;
+        cost += System.Math.Pow(1.03d, (level - 1));
+        cost *= System.Math.Pow(1.047d, level);
         cost *= System.Math.Pow(0.997f, (level - 1));
         return cost;
     }
