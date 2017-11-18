@@ -1,85 +1,56 @@
-﻿using UnityEngine;
-using System.Collections;
-using UnityEngine.UI;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
-public class Soldier : MonoBehaviour {
-
-    public int id;
-
-
-    public string Nome;
-    public double BaseGold;
-    public float BaseAtkSpeed;
-    public double BaseDamage;
-
-    private GameObject button;
-
-    int level = 1;
-    float atkSpeed = 2.5f;
-    double damage = 10d;
-
-    Animator anim;
-
-
-    public void setButton(GameObject obj)
+namespace PwndaGames.TapMonsters
+{
+    [Serializable]
+    public class Soldier
     {
-        this.button = obj;
-    }
 
-	void Start () {
-        anim = GetComponent<Animator>();
-	}
-	
+        int id;
+        double BaseGold;
+        float BaseAtkSpeed;
+        double BaseDamage;
 
-    private void spawn()
-    {
-        StartCoroutine(atkCD());
-    }
+        int level = 1;
+        float atkSpeed = 2.5f;
+        Pitolar damage = new Pitolar(10, 0);
 
-    private void attack()
-    {
-        GameObject e = GameObject.FindGameObjectWithTag("Enemy");
-        if(e != null)
+        public int ID { get { return id; } }
+        public int Level { get { return level; } }
+        public float AttackSpeed { get { return atkSpeed; } }
+        public Pitolar Damage { get { return damage; } }
+
+        public Soldier(int id, double BaseGold, float BaseAtkSpeed, double BaseDamage)
         {
-            e.GetComponent<Enemy>().hitMe(damage);
+            this.id = id;
+            this.BaseGold = BaseGold;
+            this.BaseAtkSpeed = BaseAtkSpeed;
+            this.BaseDamage = BaseDamage;
+            this.level = 1;
+            this.atkSpeed = BaseAtkSpeed;
+            damageCalculation();
+        }
+
+
+        public void damageCalculation()
+        {
+            damage = new Pitolar(BaseDamage, 0) *level;
+        }
+
+        public void setLevel(int level)
+        {
+            this.level = level;
+            damageCalculation();
+        }
+        public int getLevel() { return level; }
+
+        public void levelUp()
+        {
+            level += 1;
+            damageCalculation();
         }
     }
-
-    public double getDamage() { return damage; }
-
-    IEnumerator atkCD()
-    {
-        yield return new WaitForSeconds(atkSpeed);
-        anim.SetTrigger("attack");
-        StartCoroutine(atkCD());
-    }
-
-    public void damageCalculation()
-    {
-        damage = level * BaseDamage;
-    }
-
-    public void setLevel(int level)
-    {
-        this.level = level;
-        damageCalculation();
-        updateHUD();
-    }
-    public int getLevel() { return level; }
-
-    public void levelUp()
-    {
-        level += 1;
-        damageCalculation();
-        updateHUD();
-    }
-
-    public void updateHUD()
-    {
-        Text[] t = button.GetComponentsInChildren<Text>();
-        t[0].text = Nome;
-        t[1].text = ""+level;
-        t[2].text = ""+BaseGold;
-    }
-
 }

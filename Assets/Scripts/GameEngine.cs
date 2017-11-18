@@ -3,116 +3,100 @@ using UnityEngine.UI;
 using System.Collections;
 using System.IO;
 using System.Text;
-using System;
 
-public class GameEngine : MonoBehaviour {
-	
-	private Player player;
-	public GameObject[] Enemies;
-    private int fase=1;
-    private int level=1;
-    bool start;
-    bool loaded = false;
-    GameObject[] FaseTxt = new GameObject[2];
-
-
-
-    void OnApplicationQuit()
+namespace PwndaGames.TapMonsters
+{
+    public class GameEngine : MonoBehaviour
     {
-        if(loaded)
-			Util.getInstance().saveGame(this);
-    }
 
 
-    void OnApplicationPause()
-    {
-        if (loaded)
-			Util.getInstance().saveGame(this);
-    }
+        public GameObject[] Enemies;
+        private GameObject spawnedEnemy;
+        Text[] FaseTxt = new Text[2];
 
+        private GameData gameData;
 
+        private GameControllerState state;
 
-    void Start () {
-        start = true;
-        FaseTxt[0] = GameObject.FindGameObjectWithTag("HUD#Fase");
-        FaseTxt[1] = GameObject.FindGameObjectWithTag("HUD#LevelFase");
-		Util.getInstance ().loadGame (out fase, out level, out player);
-	    loaded = true;
-	    enemySpawn();
-    }
-
-
-	public Player getPlayer(){
-		return player;
-	}
-
-	public int getFaseNum(){
-		return fase;
-	}
-
-	public int getLevelNum(){
-		return level;
-	}
-
-    public void cantKillBoss()
-    {
-        fase--;
-    }
-
-    public void enemySpawn()
-    {
-        if (GameObject.FindGameObjectWithTag("Enemy") == null)
+        void OnApplicationQuit()
         {
-            if (!start) { level++; }
-            if (level > 10) { level = 1; fase++; }
+            if(state == GameControllerState.Spawn)
+                Util.getInstance().saveGame(gameData);
+        }
 
+
+        void OnApplicationPause()
+        {
+            if (state == GameControllerState.Spawn)
+                Util.getInstance().saveGame(gameData);
+        }
+
+
+
+        void Start()
+        {
+            state = GameControllerState.Start;
+            FaseTxt[0] = GameObject.FindGameObjectWithTag("HUD#Fase").GetComponent<Text>();
+            FaseTxt[1] = GameObject.FindGameObjectWithTag("HUD#LevelFase").GetComponent<Text>();
+            Util.getInstance ().loadGame (out gameData);
+            if (gameData == null)
+                gameData = new GameData(GameObject.Find("Player").GetComponent<PlayerController>().Jogador);
+            else
+                GameObject.Find("Player").GetComponent<PlayerController>().setPlayer(gameData.Jogador);
+            state = GameControllerState.Spawn;
+        }
+
+        void Update()
+        {
+            switch (state)
+            {
+                case GameControllerState.Start: break;
+                case GameControllerState.Spawn: enemySpawn(); break;
+            }
+        }
+
+
+        public void enemySpawn()
+        {
+            if(spawnedEnemy == null)
+            {
+                int rand = Random.Range(0, Enemies.Length - 1);
+                spawnedEnemy = Instantiate(Enemies[rand]);
+                spawnedEnemy.GetComponent<Enemy>().setVida(Util.getInstance().getEnemyHP(gameData.Fase, gameData.Level));
+                spawnedEnemy.GetComponent<Enemy>().setGold(Util.getInstance().getEnemyGold(gameData.Fase, gameData.Level));
+                if (gameData.Level == 10) { spawnedEnemy.GetComponent<Enemy>().setBoss(30f); }
+            }
+            else
+            {
+                Enemy e = spawnedEnemy.GetComponent<Enemy>();
+                if(e.Tipo == EnemyType.Boss)
+                {
+                    if(e.BossTimer <= 0 && e.State == EnemyState.Alive)
+                    {
+                        Destroy(spawnedEnemy.gameObject);
+                        gameData.levelDown();
+                    }
+                    if(e.BossTimer > 0 && e.State == EnemyState.Dead)
+                    {
+                        Destroy(spawnedEnemy.gameObject);
+                        gameData.levelUp();
+                    }
+                }
+                else if (e.State == EnemyState.Dead)
+                {
+                    Destroy(spawnedEnemy.gameObject);
+                    gameData.levelUp();
+                }
+            }
             updateHUD();
-
-            int rand = UnityEngine.Random.Range(0, Enemies.Length - 1);
-            GameObject enemy = Enemies[rand];
-            enemy = (GameObject)Instantiate(enemy);
-
-            double calculoHP = fase * 29;
-            calculoHP *= Math.Pow(1.23f, (fase + 1));
-
-            calculoHP *= Math.Pow(10, (fase / 50));
-            if (fase >= 250 && fase < 1000) { calculoHP *= Math.Pow(fase, fase / 100); }
-            if (fase >= 1000 && fase <= 2000) { calculoHP *= Math.Pow(fase, fase / 1000); }
-            if (fase < 100) { calculoHP /= 2; }
-            if (level == 10) { calculoHP *= 2.5; }
-
-            double calculoGold = Math.Pow(1.9, fase);
-            calculoGold /= (fase * 1.5f);
-            calculoGold /= 2;
-
-
-            calculoGold = Math.Ceiling(calculoGold);
-            calculoHP = Math.Ceiling(calculoHP);
-
-            enemy.GetComponent<Enemy>().setVida(calculoHP);
-            enemy.GetComponent<Enemy>().setGold(calculoGold);
-
-            if (level == 10) { enemy.GetComponent<Enemy>().setBoss(30f); }
-
         }
-        else
+
+
+        void updateHUD()
         {
-            StartCoroutine(CDEnemy());
+            FaseTxt[0].text = "Fase " + gameData.Fase;
+            FaseTxt[1].text = gameData.Level + "/10";
         }
-        start = false;
+
     }
-
-
-    IEnumerator CDEnemy()
-    {
-        yield return new WaitForSeconds(.15f);
-        enemySpawn();
-    }
-
-    void updateHUD()
-    {
-        FaseTxt[0].GetComponent<Text>().text = "Fase " + fase;
-        FaseTxt[1].GetComponent<Text>().text = level + "/10";
-    }
-
-}
+}   

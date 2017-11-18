@@ -1,10 +1,11 @@
 ﻿using UnityEngine;
 using System.Collections;
+using PwndaGames.TapMonsters;
 
 public class Gold : MonoBehaviour {
 
 
-    public double gold = 10d;
+    public Pitolar gold = Pitolar.ZERO;
     bool ativado = false;
 
 
@@ -12,7 +13,7 @@ public class Gold : MonoBehaviour {
         Physics2D.IgnoreLayerCollision(LayerMask.NameToLayer("GoldCoin"), LayerMask.NameToLayer("Enemy"));
         Physics2D.IgnoreLayerCollision(LayerMask.NameToLayer("GoldCoin"), LayerMask.NameToLayer("GoldCoin"));
         Physics2D.IgnoreLayerCollision(LayerMask.NameToLayer("GoldCoin"), LayerMask.NameToLayer("Soldier"));
-        float rand = UnityEngine.Random.Range(-.32f, .32f);
+        float rand = Random.Range(-.32f, .32f);
         GetComponent<Rigidbody2D>().AddForce(new Vector2(rand, 1.3f) *7f, ForceMode2D.Impulse);
         StartCoroutine(getOuroSemClicar());
     }
@@ -22,8 +23,9 @@ public class Gold : MonoBehaviour {
     {
         if (!ativado)
         {
-            GetComponentInChildren<TextMesh>().text = "+"+ Util.getInstance().format(gold.ToString("f0"), 0);
-            GameObject.FindGameObjectWithTag("Player").GetComponent<Player>().earnGold(gold);
+            gold.forceCeiling();
+            GetComponentInChildren<TextMesh>().text = "+"+ gold.ToString();
+            GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>().earnGold(gold);
             ativado = true;            
             GetComponent<Rigidbody2D>().AddForce(Vector2.up * 7f, ForceMode2D.Impulse);
             StartCoroutine(destroyCoutdown());
@@ -39,7 +41,6 @@ public class Gold : MonoBehaviour {
 
     IEnumerator getOuroSemClicar()
     {
-
         yield return new WaitForSeconds(2.5f);
         hitGold();
     }
